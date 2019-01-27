@@ -3,7 +3,8 @@ package ru.gaz_is.server;
 import org.apache.log4j.Logger;
 import ru.gaz_is.client.Client;
 import ru.gaz_is.common.CommandsVerificator;
-import ru.gaz_is.common.DbTableCreator;
+import ru.gaz_is.common.util.Config;
+import ru.gaz_is.common.util.DbTableCreator;
 import ru.gaz_is.common.RequestsBuilder;
 
 import java.io.DataInputStream;
@@ -12,9 +13,10 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Objects;
 
 public class Server {
-    private static final int PORT = 4444;
+    private static final int PORT = Config.get().getSocketPort();
     private static final Logger LOG = Logger.getLogger(Server.class);
 
     public static void main(String[] args) {
@@ -27,7 +29,8 @@ public class Server {
 
     public void serverRun() throws IOException {
         LOG.info("Проверка существования таблицы БД");
-        DbTableCreator.createTable();
+        DbTableCreator creator = new DbTableCreator();
+        creator.createTable();
         LOG.info("Подготовка БД успешно завершена!");
 
         ServerSocket server = new ServerSocket(PORT);
@@ -40,11 +43,8 @@ public class Server {
             }
         }).start();
 
-        CommandsVerificator verificator = new CommandsVerificator();
-        RequestsBuilder builder = new RequestsBuilder();
         LOG.info("Создание сокета для прослушивания соединения");
         while (!server.isClosed()) {
-
             try (Socket client = server.accept();
                  DataInputStream in = new DataInputStream(client.getInputStream());
                  DataOutputStream out = new DataOutputStream(client.getOutputStream())) {
@@ -54,11 +54,12 @@ public class Server {
                     String command = in.readUTF();
 
                     LOG.info("Проверка корректности поступившей команды");
-                    int commandId = verificator.verify(command, out);
+                    int commandId = new CommandsVerificator().verify(command, out);
 
                     if (commandId != -1) {
                         LOG.info("Команда корректна! Обработка поступившей команды");
                         String result = null;
+                        RequestsBuilder builder = new RequestsBuilder();
                         switch (commandId) {
                             case 1:
                                 result = builder.getAccount(command.split(" "));
@@ -73,7 +74,7 @@ public class Server {
                                 result = builder.deleteAccount(command.split(" "));
                         }
                         LOG.info("Отправка ответа клиенту");
-                        out.writeUTF(result);
+                        out.writeUTF(Objects.requireNonNull(result));
                         out.flush();
                     }
                 }

@@ -2,6 +2,7 @@ package ru.gaz_is.common;
 
 import org.apache.log4j.Logger;
 import ru.gaz_is.common.sql.ServerResponse;
+import ru.gaz_is.common.util.DbTableCreator;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,7 +12,7 @@ public class RequestsBuilder {
     private RequestExecutor executor;
 
     public RequestsBuilder() {
-        executor = new RequestExecutor(DbTableCreator.getURL());
+        executor = new RequestExecutor();
     }
 
     public String getAccount(String[] command) {
@@ -48,9 +49,8 @@ public class RequestsBuilder {
             LOG.info("Попытка сохранения аккаунта " + command[1]);
             ps.setString(1, command[1]);
             ps.setString(2, command[2]);
-            int result = 0;
             try {
-                result = ps.executeUpdate();
+                ps.executeUpdate();
             } catch (SQLException e) {
                 if (e.getSQLState().equals("23505")) {
                     return ServerResponse.ACCOUNT_ALREADY_EXISTS.getText();

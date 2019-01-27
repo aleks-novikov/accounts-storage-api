@@ -2,6 +2,7 @@ package ru.gaz_is.client;
 
 import org.apache.log4j.Logger;
 import ru.gaz_is.common.sql.ConsoleInfo;
+import ru.gaz_is.common.util.Config;
 
 import java.io.*;
 import java.net.ConnectException;
@@ -10,13 +11,9 @@ import java.net.Socket;
 
 public class Client {
     private static final Logger LOG = Logger.getLogger(Client.class);
-    private static final String IP_ADDRESS = "127.0.0.1";
-    private static final int SERVER_PORT = 4444;
+    private static final String IP_ADDRESS = Config.get().getServerIp();
+    private static final int SERVER_PORT = Config.get().getSocketPort();
     private static Socket client;
-
-    public static void main(String[] args) throws IOException {
-        new Client().clientRun();
-    }
 
     public Socket getClientSocket() {
         return client;
@@ -49,7 +46,7 @@ public class Client {
         }
     }
 
-    private static void readData(Socket client, DataInputStream in, DataOutputStream out, String accountName) throws IOException {
+    public static String readData(Socket client, DataInputStream in, DataOutputStream out, String accountName) throws IOException {
         LOG.info("Отправка команды серверу");
         out.writeUTF(accountName);
         out.flush();
@@ -62,5 +59,6 @@ public class Client {
         if (response.contains("Остановка программы")) {
             client.close();
         }
+        return response;
     }
 }

@@ -18,8 +18,4 @@ public enum ServerResponse {
     public String getText() {
         return text;
     }
-
-    public void print() {
-        System.out.println(text);
-    }
 }

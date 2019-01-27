@@ -1,6 +1,7 @@
 package ru.gaz_is.common;
 
 import ru.gaz_is.common.sql.ServerResponse;
+import ru.gaz_is.common.util.Config;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -10,8 +11,8 @@ import java.sql.SQLException;
 public class RequestExecutor {
     private final ConnectionFactory connectionFactory;
 
-    public RequestExecutor(String url) {
-        connectionFactory = () -> DriverManager.getConnection(url);
+    RequestExecutor() {
+        connectionFactory = () -> DriverManager.getConnection(Config.get().getUrl());
     }
 
     String execute(String statement, SqlExecutor settings) {
