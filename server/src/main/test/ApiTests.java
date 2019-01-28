@@ -1,9 +1,9 @@
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.gaz_is.client.Client;
 import ru.gaz_is.common.ConnectionFactory;
+import ru.gaz_is.common.sql.ConsoleInfo;
 import ru.gaz_is.common.sql.ServerResponse;
 import ru.gaz_is.common.util.Config;
 import ru.gaz_is.server.Server;
@@ -45,13 +45,6 @@ public class ApiTests {
         out = new DataOutputStream(client.getOutputStream());
     }
 
-    @AfterClass
-    public static void closeDataSources() throws IOException {
-        in.close();
-        out.close();
-        client.close();
-    }
-
     private void addData() {
         execute("INSERT INTO accounts VALUES ('accountName','Surname')", PreparedStatement::executeUpdate);
     }
@@ -68,6 +61,21 @@ public class ApiTests {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void unsuccessfulProgramExit() throws IOException {
+        expectedResult = ConsoleInfo.PROGRAM_EXIT_VERIFY.getText();
+        assertEquals(expectedResult, Client.readData(client, in, out, "0"));
+
+        expectedResult = ServerResponse.WRONG_COMMAND.getText();
+        assertEquals(expectedResult, Client.readData(client, in, out, "anyCommand"));
+    }
+
+    @Test
+    public void callHelp() throws IOException {
+        expectedResult = ConsoleInfo.HELP.getText();
+        assertEquals(expectedResult, Client.readData(client, in, out, "5"));
     }
 
     @Test

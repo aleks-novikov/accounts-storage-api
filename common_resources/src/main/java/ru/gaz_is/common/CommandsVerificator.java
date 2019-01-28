@@ -3,15 +3,19 @@ package ru.gaz_is.common;
 import ru.gaz_is.common.sql.ConsoleInfo;
 import ru.gaz_is.common.sql.ServerResponse;
 
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
 public class CommandsVerificator {
     private String[] line;
 
     public int verify(String command, DataOutputStream out) throws IOException {
+        if (command.toLowerCase().equals("y")) {
+            out.writeUTF(ConsoleInfo.PROGRAM_EXIT.getText());
+            out.flush();
+            return -1;
+        }
+
         int commandId;
         try {
             line = command.split(" ");
@@ -35,13 +39,7 @@ public class CommandsVerificator {
                 out.writeUTF(ConsoleInfo.HELP.getText());
                 break;
             case 0:
-                ConsoleInfo.PROGRAM_EXIT_VERIFY.print();
-                String answer = new BufferedReader(new InputStreamReader(System.in)).readLine();
-                if (answer.toLowerCase().equals("y")) {
-                    out.writeUTF(ConsoleInfo.PROGRAM_EXIT.getText());
-                } else {
-                    out.writeUTF(ServerResponse.WRONG_COMMAND.getText());
-                }
+                out.writeUTF(ConsoleInfo.PROGRAM_EXIT_VERIFY.getText());
                 break;
             default:
                 out.writeUTF(ServerResponse.WRONG_COMMAND.getText());
