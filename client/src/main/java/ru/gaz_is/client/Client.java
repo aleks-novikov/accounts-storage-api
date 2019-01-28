@@ -15,12 +15,15 @@ public class Client {
     private static Socket client;
 
     public Socket getClientSocket() {
+        if (client == null) {
+            new Client();
+        }
         return client;
     }
 
-    static {
+    public Client() {
+        LOG.info("Инициализация сокета клиента");
         try {
-            LOG.info("Инициализация сокета клиента");
             client = new Socket(InetAddress.getByName(IP_ADDRESS), SERVER_PORT);
         } catch (IOException e) {
             LOG.error("Ошибка запуска клиента!");
@@ -43,7 +46,7 @@ public class Client {
         }
     }
 
-    public static String readData(Socket client, DataInputStream in, DataOutputStream out, String accountName) throws IOException {
+    public String readData(Socket client, DataInputStream in, DataOutputStream out, String accountName) throws IOException {
         LOG.info("Отправка команды серверу");
         out.writeUTF(accountName);
         out.flush();

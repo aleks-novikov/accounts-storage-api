@@ -1,4 +1,4 @@
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import ru.gaz_is.client.Client;
 import ru.gaz_is.common.sql.ConsoleInfo;
@@ -10,18 +10,36 @@ import java.io.IOException;
 import java.net.Socket;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 public class ProgramExitTest {
+    private Client client;
+    private Socket socket;
+    private DataInputStream in;
+    private DataOutputStream out;
+
     @Test
     public void programExit() throws IOException {
-        Socket client = new Client().getClientSocket();
-        DataInputStream in = new DataInputStream(client.getInputStream());
-        DataOutputStream out = new DataOutputStream(client.getOutputStream());
+        new Thread(() -> {
+            try {
+                new Server().serverRun();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
 
-        String expectedResult = ConsoleInfo.PROGRAM_EXIT_VERIFY.getText();
-        assertEquals(expectedResult, Client.readData(client, in, out, "0"));
+        client = mock(Client.class);
+        socket = new Client().getClientSocket();
+        in = new DataInputStream(socket.getInputStream());
+        out = new DataOutputStream(socket.getOutputStream());
 
-        expectedResult = ConsoleInfo.PROGRAM_EXIT.getText();
-        assertEquals(expectedResult, Client.readData(client, in, out, "y"));
+        runTest("0", ConsoleInfo.PROGRAM_EXIT_VERIFY.getText());
+        runTest("y", ConsoleInfo.PROGRAM_EXIT.getText());
+    }
+
+    private void runTest(String command, String expectedResult) throws IOException {
+        when(client.readData(socket, in, out, command)).thenReturn(expectedResult);
+        assertEquals(expectedResult, client.readData(socket, in, out, command));
+        verify(client).readData(socket, in, out, command);
     }
 }
