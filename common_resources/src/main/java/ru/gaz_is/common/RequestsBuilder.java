@@ -2,7 +2,6 @@ package ru.gaz_is.common;
 
 import org.apache.log4j.Logger;
 import ru.gaz_is.common.sql.ServerResponse;
-import ru.gaz_is.common.util.DbTableCreator;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

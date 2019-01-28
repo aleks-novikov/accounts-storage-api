@@ -5,7 +5,6 @@ import ru.gaz_is.common.sql.ConsoleInfo;
 import ru.gaz_is.common.util.Config;
 
 import java.io.*;
-import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
 
@@ -24,6 +23,7 @@ public class Client {
             LOG.info("Инициализация сокета клиента");
             client = new Socket(InetAddress.getByName(IP_ADDRESS), SERVER_PORT);
         } catch (IOException e) {
+            LOG.error("Ошибка запуска клиента!");
             e.printStackTrace();
         }
     }
@@ -40,9 +40,6 @@ public class Client {
                 String command = reader.readLine();
                 readData(client, in, out, command);
             }
-        } catch (ConnectException e) {
-            LOG.warn("Ошибка запуска клиента!");
-            e.printStackTrace();
         }
     }
 

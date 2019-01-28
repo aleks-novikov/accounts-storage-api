@@ -29,8 +29,7 @@ public class Server {
 
     public void serverRun() throws IOException {
         LOG.info("Проверка существования таблицы БД");
-        DbTableCreator creator = new DbTableCreator();
-        creator.createTable();
+        new DbTableCreator().createTable();
         LOG.info("Подготовка БД успешно завершена!");
 
         ServerSocket server = new ServerSocket(PORT);
@@ -38,8 +37,8 @@ public class Server {
         new Thread(() -> {
             try {
                 new Client().clientRun();
-            } catch (IOException e1) {
-                e1.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }).start();
 
@@ -79,7 +78,7 @@ public class Server {
                     }
                 }
             } catch (EOFException e) {
-                LOG.warn("Чтение входного потока было прервано! Остановка сервера...");
+                LOG.info("Чтение входного потока было прервано! Остановка сервера...");
                 server.close();
             }
         }
